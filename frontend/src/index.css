@@ -1,0 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Merienda:wght@300..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Ribeye&display=swap');
+@import "tailwindcss";
+
+body{
+  font-family: 'Poppins', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  background-color: #F8F5F0;
+  color: #333333;
+}
+
+@theme{
+    --font-script: Great Vibes;
+    --font-primary: Ribeye;
+    --font-secondary: Merienda;
+    --color-secondary: #000000;
+    --color-button: #000000;
+    --color-button-hover: #D4AF37;
+    --color-border: #333333; /* use at 15-20% opacity */
+    --color-accent: #D4AF37; /* sale tags, icons, highlights */
+    --color-footer-bg: #000000;
+    --color-footer-text: #F8F5F0;
+}
