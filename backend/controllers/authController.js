@@ -1,17 +1,18 @@
 import { set } from "mongoose";
 import User from "../models/userModel.js";
 import jwt from "jsonwebtoken";
+import { redis } from "../lib/redis.js";
 
 const generateTokens = (userId) => {
   const accessToken = jwt.sign(
-    { id: userId },
+    { userId },
     process.env.ACCESS_TOKEN_SECRET,
     {
       expiresIn: "15m",
     }
   );
   const refreshToken = jwt.sign(
-    { id: userId },
+    { userId },
     process.env.ACCESS_TOKEN_SECRET,
     {
       expiresIn: "7d",
@@ -59,13 +60,10 @@ export const signup = async (req, res) => {
     setCookies(res, accessToken, refreshToken);
 
     res.status(201).json({
-      user: {
         _id: newUser._id,
         name: newUser.name,
         email: newUser.email,
         role: newUser.role,
-      },
-      message: "User registered successfully",
     });
   } catch (error) {
     console.log("Signup Controller error:", error.message);
@@ -84,14 +82,13 @@ export const login = async (req, res) => {
       setCookies(res, accessToken, refreshToken);
 
       res.status(200).json({
-        user: {
           _id: user._id,
           name: user.name,
           email: user.email,
           role: user.role,
-        },
-        message: "Login successful",
       });
+    }else{
+      res.status(401).json({ message: "Invalid email or password" });
     }
   } catch (error) {
     console.log("Login Controller error:", error.message);
