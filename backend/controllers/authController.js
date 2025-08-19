@@ -58,17 +58,15 @@ export const signup = async (req, res) => {
     await storeRefreshToken(newUser._id, refreshToken);
     setCookies(res, accessToken, refreshToken);
 
-    res
-      .status(201)
-      .json({
-        user: {
-          _id: newUser._id,
-          name: newUser.name,
-          email: newUser.email,
-          role: newUser.role,
-        },
-        message: "User registered successfully",
-      });
+    res.status(201).json({
+      user: {
+        _id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+      },
+      message: "User registered successfully",
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -78,6 +76,17 @@ export const login = (req, res) => {
   res.send("Login route called");
 };
 
-export const logout = (req, res) => {
-  res.send("Logout route called");
+export const logout = async (req, res) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    if (refreshToken) {
+      const decoded = jwt.verify(refreshToken, process.env.ACCESS_TOKEN_SECRET);
+      await redis.del(`refresh_token:${decoded.userId}`);
+    }
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
 };
