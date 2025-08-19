@@ -16,6 +16,10 @@ router.post("/logout", logout);
 //   Handle refresh token
 router.post("/refresh-token", refreshToken);
 
+// TODO: implement get profile
+//   Handle user profile
+// router.get("/profile", getProfile);
+
 
 
 export default router;
