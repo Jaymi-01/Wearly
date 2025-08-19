@@ -56,11 +56,19 @@ export const signup = async (req, res) => {
     //authenticate User
     const { accessToken, refreshToken } = generateTokens(newUser._id);
     await storeRefreshToken(newUser._id, refreshToken);
-    setCookies(res, accessToken, refreshToken)
+    setCookies(res, accessToken, refreshToken);
 
     res
       .status(201)
-      .json({ user: newUser, message: "User registered successfully" });
+      .json({
+        user: {
+          _id: newUser._id,
+          name: newUser.name,
+          email: newUser.email,
+          role: newUser.role,
+        },
+        message: "User registered successfully",
+      });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
