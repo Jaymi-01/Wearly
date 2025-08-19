@@ -1,4 +1,4 @@
-import {redis} from "../lib/redis.js";
+import { redis } from "../lib/redis.js";
 import cloudinary from "../lib/cloudinary.js";
 import Product from "../models/productModel.js";
 
@@ -14,7 +14,7 @@ export const getAllProducts = async (req, res) => {
 
 export const getFeaturedProducts = async (req, res) => {
   try {
-    let featuredProducts = await redis.get("featured_products")
+    let featuredProducts = await redis.get("featured_products");
     if (featuredProducts) {
       return res.json({ products: JSON.parse(featuredProducts) });
     }
@@ -29,7 +29,10 @@ export const getFeaturedProducts = async (req, res) => {
     await redis.set("featured_products", JSON.stringify(featuredProducts));
     res.json({ products: featuredProducts });
   } catch (error) {
-    console.error("Featured products fetching controller error:", error.message);
+    console.error(
+      "Featured products fetching controller error:",
+      error.message
+    );
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
@@ -50,7 +53,7 @@ export const createProduct = async (req, res) => {
       image: cloudinaryResponse?.secure_url || "",
       category,
     });
-    res.status(201).json({ product }); 
+    res.status(201).json({ product });
   } catch (error) {
     console.error("Product creation controller error:", error.message);
     res.status(500).json({ message: "Server error", error: error.message });
@@ -63,7 +66,7 @@ export const deleteProduct = async (req, res) => {
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
-    if(product.image) {
+    if (product.image) {
       const publicId = product.image.split("/").pop().split(".")[0];
       try {
         await cloudinary.uploader.destroy(`products/${publicId}`);
@@ -71,7 +74,6 @@ export const deleteProduct = async (req, res) => {
       } catch (error) {
         console.error("Error deleting image from Cloudinary:", error.message);
       }
-      
     }
     await Product.findByIdAndDelete(req.params.id);
     res.json({ message: "Product deleted successfully" });
@@ -85,7 +87,7 @@ export const getRecommendedProducts = async (req, res) => {
   try {
     const products = await Product.aggregate([
       {
-        $sample: { size: 3 }
+        $sample: { size: 3 },
       },
       {
         $project: {
@@ -94,13 +96,29 @@ export const getRecommendedProducts = async (req, res) => {
           price: 1,
           description: 1,
           image: 1,
-        }
-      }
+        },
+      },
     ]);
     res.json({ products });
   } catch (error) {
-    console.error("Recommended products fetching controller error:", error.message);
+    console.error(
+      "Recommended products fetching controller error:",
+      error.message
+    );
     res.status(500).json({ message: "Server error", error: error.message });
-    
+  }
+};
+
+export const getProductsByCategory = async (req, res) => {
+  const { category } = req.params;
+  try {
+    const products = await Product.find({ category });
+    res.json(products);
+  } catch (error) {
+    console.error(
+      "Category products fetching controller error:",
+      error.message
+    );
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
