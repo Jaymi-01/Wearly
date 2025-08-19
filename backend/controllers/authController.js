@@ -68,12 +68,35 @@ export const signup = async (req, res) => {
       message: "User registered successfully",
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.log("Signup Controller error:", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
-export const login = (req, res) => {
-  res.send("Login route called");
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body
+    const user = await User.findOne({ email })
+    if(user && (await user.matchPassword(password))) {
+      // User authenticated
+      const { accessToken, refreshToken } = generateTokens(user._id);
+      await storeRefreshToken(user._id, refreshToken);
+      setCookies(res, accessToken, refreshToken);
+
+      res.status(200).json({
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
+        message: "Login successful",
+      });
+    }
+  } catch (error) {
+    console.log("Login Controller error:", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
 };
 
 export const logout = async (req, res) => {
