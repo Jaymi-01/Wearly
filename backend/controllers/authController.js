@@ -13,7 +13,7 @@ const generateTokens = (userId) => {
   );
   const refreshToken = jwt.sign(
     { userId },
-    process.env.ACCESS_TOKEN_SECRET,
+    process.env.REFRESH_TOKEN_SECRET,
     {
       expiresIn: "7d",
     }
@@ -35,7 +35,7 @@ const setCookies = (res, accessToken, refreshToken) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    maxAge: 1000 * 60 * 15, // 15 minutes
+    maxAge: 15 * 60 * 1000, // 15 minutes
   });
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
@@ -120,8 +120,8 @@ export const refreshToken = async (req, res) => {
     }
     const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
     const storedToken = await redis.get(`refresh_token:${decoded.userId}`);
-    if (!storedToken || storedToken !== refreshToken) {
-      return res.status(403).json({ message: "Invalid refresh token" });
+    if (storedToken !== refreshToken) {
+      return res.status(401).json({ message: "Invalid refresh token" });
     }
 
     const accessToken = jwt.sign(
@@ -135,9 +135,10 @@ export const refreshToken = async (req, res) => {
       sameSite: "strict",
       maxAge: 15 * 60 * 1000, // 15 minutes
     });
-    res.status(200).json({ accessToken });
+    res.status(200).json({ message: "Refresh token successfully used" });
   } catch (error) {
     console.log("Refresh Token Controller error:", error.message);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 }
+
