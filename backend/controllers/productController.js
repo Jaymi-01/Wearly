@@ -1,3 +1,5 @@
+import {redis} from "../lib/redis.js";
+import cloudinary from "../lib/cloudinary.js";
 import Product from "../models/productModel.js";
 
 export const getAllProducts = async (req, res) => {
@@ -28,6 +30,29 @@ export const getFeaturedProducts = async (req, res) => {
     res.json({ products: featuredProducts });
   } catch (error) {
     console.error("Featured products fetching controller error:", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+export const createProduct = async (req, res) => {
+  try {
+    const { name, price, description, image, category } = req.body;
+    let cloudinaryResponse = null;
+    if (image) {
+      cloudinaryResponse = await cloudinary.uploader.upload(image, {
+        folder: "products",
+      });
+    }
+    const product = await Product.create({
+      name,
+      price,
+      description,
+      image: cloudinaryResponse?.secure_url || "",
+      category,
+    });
+    res.status(201).json({ product }); 
+  } catch (error) {
+    console.error("Product creation controller error:", error.message);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 }
