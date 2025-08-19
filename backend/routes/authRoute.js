@@ -1,6 +1,6 @@
 import { sign } from "crypto";
 import express from "express";
-import { signup, login, logout } from "../controllers/authController.js";
+import { signup, login, logout, refreshToken } from "../controllers/authController.js";
 
 const router = express.Router();
 
@@ -12,5 +12,10 @@ router.post("/login", login);
 
 //   Handle user logout
 router.post("/logout", logout);
+
+//   Handle refresh token
+router.post("/refresh-token", refreshToken);
+
+
 
 export default router;
