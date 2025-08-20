@@ -23,7 +23,20 @@ export const addToCart = async (req, res) => {
 }
 
 export const removeAllFromCart = async (req, res) => {
-
+    try {
+        const {productId} = req.body;
+        const user = req.user;
+        if (!productId){
+            user.cartItems = [];
+        }else{
+            user.cartItems = user.cartItems.filter((item) => item.id !== productId);
+        }
+        await user.save();
+        res.json(user.cartItems);
+    } catch (error) {
+        console.log("Remove all from cart controller error:", error.message);
+        res.status(500).json({ message: "Error removing items from cart" });
+    }
 }
 
 export const updateQuantity = async (req, res) => {
