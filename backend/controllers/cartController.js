@@ -1,0 +1,31 @@
+export const getCartProducts = async (req, res) => {
+
+}
+
+export const addToCart = async (req, res) => {
+    try {
+        const { productId, quantity } = req.body;
+        const userId = req.user;
+
+        const existingItem = user.cartItems.find(item => item.id === productId);
+        if (existingItem) {
+            existingItem.quantity += 1;
+        }else{
+            user.cartItems.push( productId);
+        }
+
+        await user.save();
+        res.status(201).json({ message: "Product added to cart" });
+    } catch (error) {
+        console.log("Add to cart controller error:", error.message);
+        res.status(500).json({ message: "Error adding product to cart" });
+    }
+}
+
+export const removeAllFromCart = async (req, res) => {
+
+}
+
+export const updateQuantity = async (req, res) => {
+
+}
